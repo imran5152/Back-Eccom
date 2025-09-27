@@ -16,7 +16,7 @@ import paymentRouter from './routes/paymentRoutes.js';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 (async () => {
   await connectdb();
@@ -25,27 +25,27 @@ const port = process.env.PORT || 4000;
   app.use(cookieParser());
   app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
-  
   app.use((req, res, next) => {
     console.log(`${req.method} ${req.url} at ${new Date().toISOString()}`);
     next();
   });
 
+  // Routes
   app.use('/register', auth);
   app.use('/product', product);
-  app.use('/cart',cart)
-  app.use('/category' ,CategoryController),
-  app.use("/review",ReviewRouter)
-  app.use("/order",router)
-  app.use("/wishlist",wishRouter)
-  app.use("/payment",paymentRouter)
+  app.use('/cart', cart);
+  app.use('/category', CategoryController);
+  app.use("/review", ReviewRouter);
+  app.use("/order", router);
+  app.use("/wishlist", wishRouter);
+  app.use("/payment", paymentRouter);
 
-
+  // Protected route example
   app.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: "Access granted", user: req.user });
   });
 
-  
+  // Global error handler
   app.use((err, req, res, next) => {
     console.error("Error:", err.message);
     res.status(500).json({ error: "Something went wrong!" });
