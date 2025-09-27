@@ -23,10 +23,11 @@
 
     app.use(express.json());
     app.use(cookieParser());
- app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"], // dono ports allow
-    credentials: true,
+app.use(cors({ 
+  origin: ["http://localhost:3000", "https://your-frontend-url.onrender.com"], 
+  credentials: true 
 }));
+
 
 
     app.use((req, res, next) => {
