@@ -76,3 +76,14 @@ export const login = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// Express.js example
+export const getuserId=async (req, res) => {
+  try {
+    const user = await userModel.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
