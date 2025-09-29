@@ -77,13 +77,13 @@ export const login = async (req, res) => {
   }
 };
 
-// Express.js example
+
 export const getuserId = async (req, res) => {
   try {
     const user = await userModel.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     
-    // ✅ Convert MongoDB document to plain object with string _id
+  
     const userObject = user.toObject();
     userObject._id = userObject._id.toString();
     

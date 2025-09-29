@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }], 
-    createdAt: { type: Date, default: Date.now },
+    createdAt:  { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     isFeatured: { type: Boolean, default: false },
     discount: { type: Number, default: 0 }
