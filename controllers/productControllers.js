@@ -1,5 +1,6 @@
 import productModel from "../model/productModel.js";
-import CategoryModel from "../model/categoryModel.js"; // Category model import karo
+import CategoryModel from "../model/categoryModel.js";
+import mongoose from "mongoose";
 
 // GET ALL PRODUCTS with populated category
 export const getprodcut = async (req, res) => {
@@ -32,6 +33,8 @@ export const createProducts = async (req, res) => {
   try {
     const { name, price, image, description, category, brand, stock, discount } = req.body;
 
+    console.log('📦 Received product data:', req.body);
+
     // Validate required fields
     if (!name || !price || !category) {
       return res.status(400).json({ message: "Name, price and category are required" });
@@ -39,31 +42,49 @@ export const createProducts = async (req, res) => {
 
     let categoryId = category;
 
-    // Check if category is string (name) or ObjectId
-    if (typeof category === 'string' && !category.match(/^[0-9a-fA-F]{24}$/)) {
-      // Category name diya gaya hai, ObjectId find karo
-      const categoryDoc = await CategoryModel.findOne({ name: category });
+    // Check if category is string (name)
+    if (typeof category === 'string') {
+      console.log('🔍 Searching for category:', category);
+      
+      // Trim and capitalize category name
+      const categoryName = category.trim();
+      
+      // Case-insensitive search for category
+      let categoryDoc = await CategoryModel.findOne({ 
+        name: { $regex: new RegExp('^' + categoryName + '$', 'i') } 
+      });
       
       if (!categoryDoc) {
-        return res.status(400).json({ 
-          message: `Category "${category}" not found. Please create category first.` 
+        console.log('❌ Category not found, creating new category:', categoryName);
+        // Create new category
+        categoryDoc = new CategoryModel({ 
+          name: categoryName, 
+          des: `Description for ${categoryName}` 
         });
+        await categoryDoc.save();
+        console.log('✅ New category created:', categoryDoc);
+      } else {
+        console.log('✅ Category found:', categoryDoc);
       }
       
       categoryId = categoryDoc._id;
     }
 
+    console.log('🎯 Final category ID:', categoryId);
+
     // Create product with ObjectId
     const productData = {
-      name,
-      price,
-      image,
-      description,
-      category: categoryId, // Now it's ObjectId
-      brand,
-      stock: stock || 0,
-      discount: discount || 0
+      name: name.trim(),
+      price: parseFloat(price),
+      image: image?.trim() || "",
+      description: description?.trim() || "",
+      category: categoryId,
+      brand: brand?.trim() || "",
+      stock: parseInt(stock) || 0,
+      discount: parseInt(discount) || 0
     };
+
+    console.log('🚀 Creating product with data:', productData);
 
     const product = await productModel.create(productData);
     
@@ -71,9 +92,12 @@ export const createProducts = async (req, res) => {
     const populatedProduct = await productModel.findById(product._id)
       .populate("category", "name des");
     
+    console.log('✅ Product created successfully:', populatedProduct);
+    
     res.status(201).json(populatedProduct);
     
   } catch (error) {
+    console.error('❌ Error creating product:', error);
     res.status(500).json({ message: error.message });
   }
 };
